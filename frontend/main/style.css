@@ -1,0 +1,276 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #212121;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Title + icons */
+.title {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.icons {
+  display: flex;
+  gap: 16px;
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.icon:hover {
+  transform: scale(1.1);
+}
+
+/* Welcome block */
+.welcome-block {
+  max-width: 720px;
+  font-size: 14px;
+  align-self: center;
+  text-align: center;
+  padding: 8px;
+  margin: 20px 0 0;
+  background: #1f1f1f;
+  color: #fff;
+  border-radius: 8px;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.welcome-block.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.welcome-block a {
+  color: #aecdff;
+  text-decoration: none;
+}
+
+.welcome-block a:hover {
+  text-decoration: underline;
+}
+
+/* Chat wrapper */
+.chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  background: transparent;
+}
+
+/* Scrollbar */
+.chat-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.chat-container::-webkit-scrollbar-track {
+  background: #212121;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 10px;
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+.chat-column {
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Messages */
+.message {
+  width: 100%;
+  display: flex;
+}
+
+.message.user,
+.message.bot {
+  justify-content: flex-end;
+}
+
+.bubble {
+  color: #f2f2f2;
+  font-size: 14px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.message.bot .bubble {
+  max-width: 768px;
+  background: #212121;
+}
+
+.message.user .bubble {
+  max-width: 512px;
+  background: #303030;
+}
+
+/* Actions under bubble */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  opacity: 0.8;
+}
+
+.bot-actions {
+  justify-content: flex-start;
+}
+
+.user-actions {
+  justify-content: flex-end;
+}
+
+.action-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.action-icon:hover {
+  transform: scale(1.15);
+  opacity: 1;
+}
+
+.sources-link {
+  font-size: 14px;
+  color: #aecdff;
+  cursor: pointer;
+  opacity: 0.85;
+  text-decoration: underline;
+  transition: opacity 0.15s ease;
+}
+
+.sources-link:hover {
+  opacity: 1;
+}
+
+/* Input */
+.input-container {
+  width: 768px;
+  max-width: 70%;
+  margin: 8px auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  background: #303030;
+  border-radius: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.input-container textarea {
+  flex: 1;
+  height: auto;
+  max-height: 200px;
+  padding: 0;
+  resize: none;
+  border: none;
+  outline: none;
+  overflow-y: auto;
+  font-size: 14px;
+  color: #f2f2f2;
+  background: transparent;
+}
+
+.input-container textarea::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+.input-container textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.input-container textarea::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.input-container textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.send-btn {
+  margin-left: 4px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.send-btn img {
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+.send-btn:hover {
+  box-shadow: 0 0 6px rgba(255,255,255,0.5);
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Error bubble */
+.message.thinking .text {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.message.bot.error .bubble {
+  background: #3a1f1f;
+  border-left: 4px solid #ff6b6b;
+}
+
+.message.bot.error .text {
+  color: #ffb3b3;
+  font-style: italic;
+}

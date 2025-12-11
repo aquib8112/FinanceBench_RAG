@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual envs
+venv/
+backend/venv/
+
+# Environment files (real secrets)
+.env
+
+# Ignore only .env files with extensions, NOT .env.example
+.env.local
+.env.dev
+.env.prod
+.env.backup
+
+# Bytecode / caches
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+
+# Data / large artifacts
+data/
+*.zip
+*.tar.gz
+*.db
+*.sqlite
+chroma/
+chroma_db/
+TE004_SBC_I1.zip
+FB_LC_DOC.json
+
+# Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db

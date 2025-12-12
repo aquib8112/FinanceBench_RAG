@@ -104,7 +104,7 @@ function createBotMessage(text, messageId) {
 }
 
 async function apiCall(userQuestion) {
-  const response = await fetch("http://localhost:3000/ask", {
+  const response = await fetch("https://financebench-backend-287994657961.us-central1.run.app/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

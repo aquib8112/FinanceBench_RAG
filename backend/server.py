@@ -30,7 +30,3 @@ async def ask(payload: PromptPayload):
         "answer": answer,
         "documents": selected_docs
     }
-
-
-
-

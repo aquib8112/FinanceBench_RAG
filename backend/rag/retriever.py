@@ -9,10 +9,10 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 load_dotenv()
 
-BASE_DIR = os.path.join(os.path.dirname(__file__), "..", "..")
-CHROMA_ZIP = os.path.join(BASE_DIR, "data", "TE004_SBC_I1.zip")
-CHROMA_DIR = os.path.join(BASE_DIR, "data", "chroma_db")
-FB_LC_DOC = os.path.join(BASE_DIR, "data", "FB_LC_DOC.json")
+BASE_DIR = os.path.join(os.path.dirname(__file__), "..", "data") 
+CHROMA_ZIP = os.path.join(BASE_DIR, "TE004_SBC_I1.zip")
+CHROMA_DIR = os.path.join(BASE_DIR, "chroma_db")
+FB_LC_DOC = os.path.join(BASE_DIR, "FB_LC_DOC.json")
 
 with open(FB_LC_DOC, "r", encoding="utf-8") as f:
     stored = json.load(f)

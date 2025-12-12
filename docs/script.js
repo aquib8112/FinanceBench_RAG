@@ -54,7 +54,7 @@ function createUserMessage(text) {
       <div class="bubble">
           <div class="text">${text}</div>
           <div class="actions user-actions">
-              <img src="../resource/icons8-copy-100.png" class="action-icon action-copy">
+              <img src="../frontend/resource/icons8-copy-100.png" class="action-icon action-copy">
           </div>
       </div>
   `;
@@ -84,9 +84,9 @@ function createBotMessage(text, messageId) {
       <div class="bubble">
           <div class="text">${html}</div>
           <div class="actions bot-actions">
-              <img src="../resource/icons8-copy-100.png" class="action-icon action-copy">
-              <img src="../resource/icons8-thumbs-up-100.png" class="action-icon">
-              <img src="../resource/icons8-thumbs-down-100.png" class="action-icon">
+              <img src="../frontend/resource/icons8-copy-100.png" class="action-icon action-copy">
+              <img src="../frontend/resource/icons8-thumbs-up-100.png" class="action-icon">
+              <img src="../frontend/resource/icons8-thumbs-down-100.png" class="action-icon">
               <div class="sources-link" data-id="${messageId}">Sources</div>
           </div>
       </div>
@@ -97,7 +97,7 @@ function createBotMessage(text, messageId) {
   if (docs) {
     sessionStorage.setItem("retrieved_sources", docs);
   }
-  window.open("../sources/sources_page.html", "_blank");
+  window.open("../frontend/sources/sources_page.html", "_blank");
   });
   
   return msg;

@@ -3,9 +3,10 @@ from langsmith import trace
 from dotenv import load_dotenv
 from langsmith import traceable
 from .generator import generate
+from .llm_judge import llm_judge
+from .retriever import retriever
 from .query_formatter import query_rewriter
-from .retriever import embedding_search, bm25_search
-from .utils import resolve_company, get_year_window, deduplicator, doc_to_text
+from .utils import LLMFailure, resolve_company, get_year_window, doc_to_text
 
 load_dotenv()
 
@@ -16,33 +17,37 @@ os.environ["LANGCHAIN_PROJECT"] = os.getenv("LANGCHAIN_PROJECT")
 
 @traceable(name="pipeline_step")
 def pipeline(query):
+    try:
+        with trace("get_year_window", run_type="tool") as t:
+            years = get_year_window(query)
 
-    with trace("get_year_window") as t:
-        t.add_inputs({"query": query})
-        years = get_year_window(query)
-        t.add_outputs({"years": years})
+        with trace("resolve_company", run_type="tool") as t:
+            company = resolve_company(query)
 
-    with trace("resolve_company") as t:
-        t.add_inputs({"query": query})
-        company = resolve_company(query)
-        t.add_outputs({"company": company})
+        rw_query = query_rewriter(query)
 
-    rw_query = query_rewriter(query)
-    
-    bm25_docs = bm25_search(rw_query, company, years, 5)
-    embed_docs = embedding_search(rw_query, company, years, 5)
+        results = retriever(rw_query, company, years, k=10)
+        results = llm_judge(query, results)
 
-    results = deduplicator(bm25_docs + embed_docs)
-    source = doc_to_text(results)
+        source = doc_to_text(results)
+        response = generate(query, source)
 
-    response = generate(query, source)
-        
-    selected_docs = [results[i] for i in response.indexes if i < len(results)]
-
-    return {
-        "answer": response.answer,
-        "documents": [
-            {"metadata": d.metadata, "page_content": d.page_content}
-            for d in selected_docs
+        selected_docs = [
+            results[i] for i in response.indexes if i < len(results)
         ]
-    }
+
+        return {
+            "answer": response.answer,
+            "documents": [
+                {"metadata": d.metadata, "page_content": d.page_content}
+                for d in selected_docs
+            ]
+        }
+
+    except LLMFailure as e:
+        # controlled failure
+        return {
+            "answer": "The system could not generate a reliable answer.",
+            "documents": [],
+            "error": str(e)
+        }

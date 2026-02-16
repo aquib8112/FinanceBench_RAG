@@ -1,19 +1,14 @@
 import os
 from typing import List
+from google import genai
+from .utils import LLMFailure
 from dotenv import load_dotenv
+from langsmith import traceable
 from pydantic import BaseModel, Field
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.output_parsers import PydanticOutputParser
 
 load_dotenv()
 
-llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-pro",   
-        google_api_key = os.getenv("GOOGLE_API_KEY"),
-        temperature=0
-    )
-
+client = genai.Client(api_key=os.getenv("FREE_GOOGLE_API_KEY"))
 class FinanceAnswerSchema(BaseModel):
     answer: str = Field(
         description="Final analytical answer in Markdown format, with '## Reasoning' and '## Conclusion' sections."
@@ -23,55 +18,63 @@ class FinanceAnswerSchema(BaseModel):
         default_factory=list
     )
 
-parser = PydanticOutputParser(pydantic_object=FinanceAnswerSchema)
-
-
-prompt = ChatPromptTemplate.from_template("""
-    You are an expert financial analyst. Your task is to reason carefully before answering.
-
-    Follow these steps **strictly**:
-    1. **Analyze the question** — clarify what is being asked (ratios, trends, liquidity, risks, etc.).
-    2. **Extract relevant data or facts** only from the provided source.
-    3. **Connect those facts** using logical financial reasoning to form a conclusion.
-    4. **Present your final answer** clearly and concisely, focusing on accuracy and analytical depth.
-
-    Guidelines:
-    - Use only the information given in the source.
-    - Do not guess or rely on outside knowledge.
-    - If the answer cannot be found, write exactly: **"Not found in source."**
-    - Use a professional tone and avoid redundancy.
-    - **Format your answer using clean Markdown with two sections:**
-        - `## Reasoning`
-        - `## Conclusion`
-
-    Additional requirements:
-    - Return your Markdown content inside the `"answer"` field.
-    - `"indexes"` must list the 0-based indexes of the documents used.
-    - If your conclusion is not found in source, then:
-        - The `indexes` list MUST be empty (`[]`).
-    - The final output must be valid JSON matching this Pydantic schema:
-    {format_instructions}
-
-    ---
-
-    Question:
-    {question}
-
-    Source:
-    {source}
-
-    ---
-
-    Answer:
-    """)
-
+@traceable(name="generator", run_type = "llm")
 def generate(question: str, source_text: str):
 
-    formatted_prompt = prompt.format(
-        question=question,
-        source=source_text,
-        format_instructions=parser.get_format_instructions()
-    )
+    prompt = f"""
+        You are an expert financial analyst. Your task is to reason carefully before answering.
+        
+        Follow these steps **strictly**:
+        1. **Analyze the question** — determine what is being asked (ratios, trends, liquidity, risks, etc.). 
+        2. **Identify relevant documents** — from the provided sources, select only documents that contain facts or data directly related to the question. Ignore any unrelated passages completely. 
+        3. **Extract relevant data or facts** — only from documents identified as relevant. 
+        4. **Connect those facts** using logical financial reasoning to form a conclusion. 
+        5. **Present your final answer** clearly and concisely, focusing on accuracy and analytical depth.
+        
+        Guidelines:
+        - Use only information from the relevant documents.
+        - Do not guess or rely on outside knowledge.
+        - If the answer cannot be found in the relevant documents, write exactly: **"Not found in source."**
+        - Use a professional tone and avoid redundancy.
+        - **Format your answer using clean Markdown with two sections:**
+            - `## Reasoning`
+            - `## Conclusion`
+        
+        Additional requirements:
+        - Return your Markdown content inside the `"answer"` field.
+        - `"indexes"` must list the 0-based indexes of documents actually used.
+        - You may only list a document index if you directly quoted or paraphrased content from that document.
+        - If no relevant documents exist, `"indexes"` must be empty (`[]`) and `"answer"` should be "Not found in source."
+        
+        ---
+        
+        Question:
+        {question}
+        
+        Source:
+        {source_text}
+        
+        ---
+        
+        Answer:
 
-    raw = llm.invoke(formatted_prompt)
-    return parser.parse(raw.content)    
+        """
+
+    try :
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=prompt,
+            config={
+                "temperature": 0.0,
+                "top_p": 0.1,
+                "seed": 42,
+                "response_mime_type": "application/json",
+                "response_json_schema": FinanceAnswerSchema.model_json_schema(),
+            },
+        )
+
+        result = FinanceAnswerSchema.model_validate_json(response.text)
+        return result
+    
+    except Exception as e:
+        raise LLMFailure(f"Judge failed: {e}")

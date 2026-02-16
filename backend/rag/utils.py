@@ -1,7 +1,9 @@
 import re
-from typing import List
 from rapidfuzz import fuzz, process
-from langchain_core.documents import Document
+
+class LLMFailure(Exception):
+    """Raised when an LLM call fails in a recoverable way."""
+    pass
 
 def resolve_company(query: str, threshold: int = 80) -> str | None:
     COMPANY_ALIASES = {
@@ -87,26 +89,15 @@ def get_year_window(question: str):
     
     return sorted(list(range(start, end + 1)))
 
-def deduplicator(docs: List[Document]) -> List[Document]:
-    seen_ids = set()
-    unique_docs = []
-
-    for doc in docs:
-        chunk_id = doc.metadata["uid"]
-        if chunk_id not in seen_ids:
-            seen_ids.add(chunk_id)
-            unique_docs.append(doc)
-
-    return unique_docs
-
 def doc_to_text(docs):
     chunks = []
     for i, doc in enumerate(docs):
         m = doc.metadata
         chunk = (
             f"=== DOCUMENT {i} ===\n"
-            f"document name: {m.get('document_name')}\n"
-            f"page number: {m.get('page_in_pdf')}\n"
+            f"Company: {m.get('company')}\n"
+            f"Year: {m.get('year')}\n"
+            f"Document type: {m.get('doc_type')}\n"
             f"CONTENT:\n{m.get('full_text')}\n"
             f"=== END DOCUMENT {i} ===\n"
         )

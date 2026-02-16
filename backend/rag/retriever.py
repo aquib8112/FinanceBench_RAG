@@ -1,92 +1,106 @@
+import os
 import zipfile
-import json, os
+from langsmith import traceable
 from dotenv import load_dotenv
+from qdrant_client import models
 from typing import List, Optional
-from langchain_chroma import Chroma
+from qdrant_client import QdrantClient
 from langchain_core.documents import Document
-from langchain_community.retrievers import BM25Retriever
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_qdrant import QdrantVectorStore, RetrievalMode, FastEmbedSparse
 
 load_dotenv()
 
-BASE_DIR = os.path.join(os.path.dirname(__file__), "..", "data") 
-CHROMA_ZIP = os.path.join(BASE_DIR, "TE004_SBC_I1.zip")
-CHROMA_DIR = os.path.join(BASE_DIR, "chroma_db")
-FB_LC_DOC = os.path.join(BASE_DIR, "FB_LC_DOC.json")
+BASE_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 
-with open(FB_LC_DOC, "r", encoding="utf-8") as f:
-    stored = json.load(f)
+QDRANT_ZIP = os.path.join(BASE_DIR, "GE001_3072_SBC_QDRANT_HYBRID.zip")
+QDRANT_DIR = os.path.join(BASE_DIR, "qdrant_db")
+COLLECTION_NAME = "sec_filings"
 
-og_docs = [Document(page_content=d["page_content"], metadata=d["metadata"]) for d in stored]
-
-def ensure_chroma_unzipped():
-    if not os.path.exists(CHROMA_DIR):
-        print("Unzipping Chroma DB...")
-        with zipfile.ZipFile(CHROMA_ZIP, 'r') as zip_ref:
-            zip_ref.extractall("data")
+def ensure_qdrant_unzipped():
+    if not os.path.exists(QDRANT_DIR):
+        print("Unzipping Qdrant DB...")
+        with zipfile.ZipFile(QDRANT_ZIP, "r") as zip_ref:
+            zip_ref.extractall(QDRANT_DIR)
     else:
-        print("Chroma DB already available.")
+        print("Qdrant DB already available.")
 
-def load_embedding_retriever():
-    ensure_chroma_unzipped()
+def load_qdrant_vectorstore():
+    ensure_qdrant_unzipped()
 
-    embedding_model = GoogleGenerativeAIEmbeddings(
-        model="text-embedding-004",
-        google_api_key= os.getenv("GOOGLE_API_KEY"),
+    dense_embeddings = GoogleGenerativeAIEmbeddings(
+        model="models/gemini-embedding-001",
+        google_api_key=os.getenv("FREE_GOOGLE_API_KEY"),
         task_type="RETRIEVAL_DOCUMENT",
-        output_dimensionality=1536
+        output_dimensionality=3072  
     )
 
-    vectorstore = Chroma(
-        persist_directory=CHROMA_DIR,
-        embedding_function=embedding_model,
+    sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
+
+    client = QdrantClient(path=QDRANT_DIR)
+
+    vectorstore = QdrantVectorStore(
+        client=client,
+        collection_name=COLLECTION_NAME,
+        embedding=dense_embeddings,
+        sparse_embedding=sparse_embeddings,
+        retrieval_mode=RetrievalMode.HYBRID,
+        vector_name="dense",
+        sparse_vector_name="sparse",
     )
 
-    return vectorstore.as_retriever()
+    return vectorstore
 
-embedding_retriever = load_embedding_retriever()
+vectorstore  = load_qdrant_vectorstore()
 
-def embedding_search(queries: str, company: Optional[str] = None, year_window: List[int] = [], k: int = 5) -> List[Document]:
-    results = []
+@traceable(name="hybrid_retrieval", run_type = "retriever")
+def retriever(queries: str, company: Optional[str] = None, year_window: List[int] = [], k: int = 10) -> List[Document]:
 
-    base_filter = {}
+    must_conditions = []
+    should_conditions = []
+
     if company:
-        base_filter["company"] = company
-   
-    year_filter = {}
+        must_conditions.append(
+            models.FieldCondition(
+                key="metadata.company",
+                match=models.MatchValue(value=company.lower())
+            )
+        )
+
     if year_window:
-        year_filter = {"$or": [{"year": y} for y in year_window]}
-    
-    filter_ = base_filter
-    if year_filter:
-        if base_filter:
-            filter_ = {"$and": [base_filter, year_filter]}
-        else:
-            filter_ = year_filter
-    
-    q = queries
-    docs_ = embedding_retriever.invoke(q, filter=filter_, k=k)
-    if not docs_ and year_filter:  
-        fallback_filter = base_filter
-        docs_ = embedding_retriever.invoke(q, filter=fallback_filter, k=k)
-    results.extend(docs_) 
+        for y in year_window:
+            should_conditions.append(
+                models.FieldCondition(
+                    key="metadata.year",
+                    match=models.MatchValue(value=y)
+                )
+            )
 
-    return results
+    filter_ = None
+    if must_conditions or should_conditions:
+        filter_ = models.Filter(
+            must=must_conditions if must_conditions else None,
+            should=should_conditions if should_conditions else None
+        )
 
-def bm25_search(queries: str, company: Optional[str] = None, year_window: List[int] = [], k: int = 5) -> List[Document]:
-    filtered_docs = og_docs  
-    if company:
-        filtered_docs = [d for d in filtered_docs if d.metadata.get("company").lower() == company]
+    docs = vectorstore.similarity_search(
+        query=queries,
+        k=k,
+        filter=filter_
+    )
 
-    year_matches_exist = any(d.metadata.get("year") in year_window for d in filtered_docs) if year_window else False
+    if not docs and company:
+        docs = vectorstore.similarity_search(
+            query=queries,
+            k=k,
+            filter=models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="metadata.company",
+                        match=models.MatchValue(value=company.lower())
+                    )
+                ]
+            )
+        )
 
-    if year_window and year_matches_exist:
-        filtered_docs = [d for d in filtered_docs if d.metadata.get("year") in year_window]
-
-    retriever = BM25Retriever.from_documents(filtered_docs, k=k)
-    q = queries
-    results = []
-    results.extend(retriever.invoke(q))
-
-    return results
-
+    return docs

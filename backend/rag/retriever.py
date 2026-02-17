@@ -12,27 +12,19 @@ from langchain_qdrant import QdrantVectorStore, RetrievalMode, FastEmbedSparse
 load_dotenv()
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
-
-QDRANT_ZIP = os.path.join(BASE_DIR, "GE001_3072_SBC_QDRANT_HYBRID.zip")
 QDRANT_DIR = os.path.join(BASE_DIR, "qdrant_db")
 COLLECTION_NAME = "sec_filings"
 
-def ensure_qdrant_unzipped():
-    if not os.path.exists(QDRANT_DIR):
-        print("Unzipping Qdrant DB...")
-        with zipfile.ZipFile(QDRANT_ZIP, "r") as zip_ref:
-            zip_ref.extractall(QDRANT_DIR)
-    else:
-        print("Qdrant DB already available.")
-
 def load_qdrant_vectorstore():
-    ensure_qdrant_unzipped()
+
+    if not os.path.exists(QDRANT_DIR):
+        raise RuntimeError(f"Qdrant DB folder not found at {QDRANT_DIR}")
 
     dense_embeddings = GoogleGenerativeAIEmbeddings(
         model="models/gemini-embedding-001",
         google_api_key=os.getenv("FREE_GOOGLE_API_KEY"),
         task_type="RETRIEVAL_DOCUMENT",
-        output_dimensionality=3072  
+        output_dimensionality=3072
     )
 
     sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
@@ -48,10 +40,11 @@ def load_qdrant_vectorstore():
         vector_name="dense",
         sparse_vector_name="sparse",
     )
+    print("Qdrant DB running.")
 
     return vectorstore
 
-vectorstore  = load_qdrant_vectorstore()
+vectorstore = load_qdrant_vectorstore()
 
 @traceable(name="hybrid_retrieval", run_type = "retriever")
 def retriever(queries: str, company: Optional[str] = None, year_window: List[int] = [], k: int = 10) -> List[Document]:

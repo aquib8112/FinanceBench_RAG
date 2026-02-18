@@ -27,7 +27,10 @@ def load_qdrant_vectorstore():
         output_dimensionality=3072
     )
 
-    sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
+    sparse_embeddings = FastEmbedSparse(
+        model_name="Qdrant/bm25",
+        cache_dir="/app/fastembed_cache"
+    )
 
     client = QdrantClient(path=QDRANT_DIR)
 

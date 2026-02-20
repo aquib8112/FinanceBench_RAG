@@ -5,7 +5,7 @@ FinanceBench_RAG is an experimental retrieval-augmented generation (RAG) system 
 
 FinanceBench evaluates whether large language models can answer clear-cut, expert-written financial questions grounded in real filings such as 10-Ks, 10-Qs, 8-Ks, and earnings materials. Prior work shows that even state-of-the-art models with retrieval struggle on this benchmark, and that brute-force long-context prompting is impractical due to latency and scalability constraints.
 
-This project focuses on building a retrieval pipeline capable of identifying the correct supporting pages for FinanceBench questions and measuring how retrieval quality affects downstream answer generation. On the 150 publicly available evaluation questions, the system achieves **~70% exact page retrieval at low retrieval depth (top_k = 5)**. When the gold pages are provided, strong models (e.g., Gemini-2.5-Pro) are able to answer most questions correctly using zero-shot prompting, indicating that retrieval is the primary bottleneck, not reasoning.
+On the 150 publicly available FinanceBench evaluation questions, the system achieves ~76% end-to-end answer accuracy. Error analysis shows that missed evidence during retrieval remains the dominant source of failure, while the remaining errors occur primarily on interpretive or multi-step reasoning questions even when relevant pages are retrieved. This confirms that improving retrieval coverage is still the highest-leverage direction for further gains.
 
 This repository represents an ongoing research and engineering effort rather than a production system.
 
@@ -21,61 +21,49 @@ At a high level, the system operates as follows:
 1. A user query is received.
 2. Company names and a relevant year window are extracted from the query.
 3. The query is rewritten into a retrieval-friendly form using an LLM.
-4. Retrieval is performed over **page-level document summaries**.
-5. The **full page contents** of retrieved documents are passed to a generator LLM.
-6. The generator produces an answer and explicitly references the pages it used.
+4. Hybrid retrieval is performed over **page-level document summaries**.
+5. Retrieved pages are passed through an **LLM relevance judge** that removes clearly irrelevant evidence.
+6. The **full page contents** of the remaining documents are sent to a generator LLM.
+7. The generator produces an answer and explicitly references the pages it used.
+8. All stages of the pipeline are traced and logged using : **langsmith** for debugging and evaluation.
 
 ---
 
 ## Retrieval Design Choices
 Key retrieval decisions in this system:
 
-- **Page-level retrieval**: Documents are indexed by page rather than by structural or heading-based chunks. Structural chunking produced ~36K chunks on this corpus, while page-level indexing reduces the search space to ~12K chunks.
-- **Summary-based embeddings**: Each page is represented by a cleaned summary for retrieval; summaries are used for both BM25 and dense embedding search but are never passed to the generator.
-- **Single rewritten query**: Multi-query expansion was intentionally avoided in favor of a single, normalized query to limit noise and improve precision at low retrieval depth.
+- **Page-level retrieval**: Documents are indexed by page rather than by structural or heading-based chunks. Structural chunking produced ~36K chunks on this corpus, while page-level indexing reduces the search space to ~12K chunks, improving ranking stability, lowering latency, and reducing the chance of retrieving fragmented context.
+- **Summary-based embeddings**: Each page is represented by a cleaned semantic summary for retrieval. Raw financial pages contain tables, boilerplate text, and formatting noise that degrade embedding quality; summaries compress the signal into clearer semantic units. Summaries are used for both BM25 and dense search but are never passed to the generator.
+- **Single rewritten query**: Multi-query expansion or HYDE was intentionally avoided in favor of a single normalized query to limit noise and improve precision at low retrieval depth.
 - **Hybrid signals**: Sparse (BM25) and dense embedding retrieval are both used, with document-level deduplication applied after retrieval.
 - **Metadata filters**: Company and year constraints are applied early to reduce the search space before ranking.
+- **LLM relevance judge**: Retrieved pages are filtered through an LLM that removes clearly irrelevant evidence before generation, reducing hallucination risk and preventing noisy context from reaching the answer stage.
 
-These choices prioritize precision at low retrieval depth. On the 150 public FinanceBench questions, the system retrieves the exact supporting page approximately 70% of the time. This substantially exceeds the effectiveness of shared vector-store RAG setups reported in the FinanceBench paper, which achieved only ~19% answer accuracy on the same public question set, suggesting that retrieval quality is a dominant limiting factor
+These design choices prioritize precise evidence retrieval under realistic constraints. On the 150 public FinanceBench evaluation questions, the system achieves ~76% end-to-end answer accuracy, substantially outperforming shared vector-store RAG configurations reported in the FinanceBench paper, which achieve ~19% accuracy on the same subset, and approaching long-context baselines 79% without requiring entire filings in prompt context.
 
-Given that strong LLMs (e.g., Gemini-2.5-Pro) answer most FinanceBench questions correctly when provided with the gold supporting pages, these results suggest that improving retrieval—rather than model reasoning—is the primary driver of end-to-end performance gains.
+Error analysis indicates that retrieval coverage remains the primary bottleneck in failed cases, while the remaining errors occur mainly on interpretive or multi-step financial questions even when the correct evidence is retrieved. This suggests that improving retrieval quality is the main driver of performance gains, with reasoning limits emerging only after evidence selection succeeds.
 
 ---
 
 ## Evaluation & Known Limits
+Evaluation was conducted on the 150 public FinanceBench questions.
 
-Evaluation is performed on the 150 public FinanceBench queries with a focus on retrieval metrics:
+### Overall Outcome
+- ~76% answered correctly  
+- 36 failures total  
 
-- Recall
-- Precision
-- Exact page retrieval
+### Failure Breakdown
+- **24 / 36 failures** were caused by incorrect evidence retrieval  
+- **12 / 36 failures** occurred despite correct evidence being retrieved (reasoning or interpretation errors)  
 
-Two operating regimes highlight the core tradeoff:
+### Failure Patterns by Question Type
+- **Domain-relevant:** 18 failures  
+- **Novel generated:** 14 failures  
+- **Metrics-generated:** 4 failures  
 
-- **Low retrieval depth (top_k = 5)**  
-  - Exact page retrieval: ~71%  
-  - Recall: ~72%  
-  - Precision: ~16%  
-  - Average retrieved pages: ~9  
-
-  This regime prioritizes precision and yields a compact evidence set suitable for downstream reasoning.
-
-- **High retrieval depth (top_k = 75)**  
-  - Exact page retrieval: ~98%  
-  - Recall: ~98%  
-  - Precision: ~3%  
-  - Average retrieved pages: ~108  
-
-  While recall approaches saturation, precision collapses and the resulting context size becomes impractical for generation.
-
-Observed behavior:
-
-- Precision improves substantially at low retrieval depth but declines rapidly as top_k increases.
-- Near-perfect recall requires retrieving 100+ pages, introducing excessive noise.
-- Cross-encoder and LLM-based rerankers were explored but did not reliably recover precision at large candidate set sizes in this setup.
-- Brute-force increases in retrieval depth are not viable for downstream reasoning under realistic latency and context constraints.
-
-These results reinforce retrieval precision - not recall saturation - as the primary bottleneck for effective financial QA on FinanceBench.
+### Key Takeaway
+Most errors stem from missing or noisy retrieval rather than generation quality.  
+When the correct evidence is retrieved, the system answers correctly in the majority of cases, with remaining failures concentrated in interpretive or multi-step financial reasoning.
 
 ---
 

@@ -45,9 +45,18 @@ def pipeline(query):
         }
 
     except LLMFailure as e:
-        # controlled failure
+        error_str = str(e).upper()
+    
+        if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+            user_message = "The system has reached the maximum daily request limit for the free service tier. Access will be restored once the quota resets."
+        
+        elif any(code in error_str for code in ["503", "529", "SERVICE_UNAVAILABLE", "DEADLINE_EXCEEDED"]):
+            user_message = "The underlying model provider is currently experiencing high traffic volumes. Please attempt your request again in a few moments."
+            
+        else:
+            user_message = "An unexpected error occurred during response generation. Please verify your query and try again."
         return {
-            "answer": "The system could not generate a reliable answer.",
+            "answer": user_message,
             "documents": [],
             "error": str(e)
         }

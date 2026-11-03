@@ -1,123 +1,110 @@
-import os
-from typing import List
+import json
+
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field
-from .utils import LLMFailure
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.output_parsers import PydanticOutputParser
+from langsmith import traceable
+from pydantic import BaseModel, Field, ConfigDict
+
+from .utils import ChatOpenRouter, LLMFailure, bind_json_schema, invoke_json_schema
 
 load_dotenv()
 
-llm = ChatGoogleGenerativeAI(
-   model="gemini-2.5-flash-lite",
-   google_api_key=os.getenv("FREE_GOOGLE_API_KEY"),
-   temperature=0,
-   top_p=0.1,
-   seed=42
-)
+class DecompositionPlan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
-class RetrievalQuerySchema(BaseModel):
-    rewritten_query: str = Field(
+    reasoning: str = Field(
+        min_length=1,
         description=(
-            "A concise, retrieval-optimized query written in formal financial language,"
-            "containing only the factual information need suitable for searching "
-            "SEC filings (10-K, 10-Q, 8-K) and earnings call transcripts. "
-            "All reasoning, evaluation, or explanatory clauses must be removed."
-        )
+            "Brief evidence plan identifying required facts, essential "
+            "qualifiers, and material ambiguities."
+        ),
+    )
+    queries: list[str] = Field(
+        min_length=1,
+        description="Evidence search queries, each preserving essential qualifiers.",
     )
 
-parser = PydanticOutputParser(pydantic_object=RetrievalQuerySchema)
 
-QUERY_REWRITE_PROMPT = ChatPromptTemplate.from_template("""
-        You are an expert system for financial document retrieval over SEC filings and earnings materials.
+def planner_prompt(question: str) -> str:
+    context = json.dumps({
+        "question": question,
+    }, ensure_ascii=False)
 
-        Your task is to rewrite the user input into a single declarative retrieval query that will be used only for embedding-based and BM25 search over:
-        Form 10-K
-        Form 10-Q
-        Form 8-K
-        Earnings call transcripts
-        Page-level financial summaries derived from these documents
-        
-        The rewritten query must strictly follow these rules:
-        
-        1. Declarative form only
-        - The output must be a declarative noun phrase or statement.
-        - Do NOT phrase the output as a question.
-        - Do NOT include interrogatives such as “what,” “whether,” or “does.”
-        
-        2. Reported facts only
-        - Include only financial information that is explicitly reported in filings.
-        - Refer only to concrete line items, disclosures, or reported figures.
-        - Do NOT include opinions, judgments, interpretations, or evaluations.
-        
-        3. No trends, assessments, or health judgments
-        - Remove all language related to:
-            - trends
-            - improvement or deterioration
-            - stability or health
-            - performance evaluation
-        - If the original query implies analysis, reduce it to the underlying reported facts required to perform that analysis.
-        
-        4. Decompose derived metrics
-        - Do NOT include ratios, margins, conversions, or derived metrics directly.
-        - Rewrite such requests using their underlying reported components.
-            - Example: operating margin → operating income and revenue
-            - Example: free cash flow → cash from operations and capital expenditures
-        
-        5. Filing-aligned terminology
-        - Use terminology consistent with reported financial statement line items.
-        - Prefer standard GAAP naming conventions where applicable.
-        - Mention financial statements by name (e.g., “Consolidated Balance Sheet,” “Consolidated Statement of Cash Flows”).
-        - Do NOT reference specific subsections or internal headings.
-        
-        6. Single fiscal period
-        - Each rewritten query must refer to exactly one fiscal year or one fiscal quarter.
-        - Do NOT combine multiple periods in a single query.
-        
-        7. No filler or meta language
-        - Do NOT use verbs such as:
-            - analyze
-            - assess
-            - determine
-            - evaluate
-            - identify 
-        - Do NOT reference the user, the question, or the act of answering.
-        - Do NOT explain or justify the rewrite.
-        
-        8. Single output  
-        - Produce exactly one rewritten query.
-        - Do NOT return multiple variants.
-        - Do NOT include explanations or commentary.
+    schema = json.dumps(DecompositionPlan.model_json_schema())
 
-        Important:
-        - Output must be valid JSON only.
-        - Do NOT use Markdown.
-        - Do NOT wrap the output in code fences.
-        - Do NOT include any text outside the JSON object.
-        
-        ----- 
-        
-        Output format:
-        {format_instructions}
-        
-        User Input:
-        {query}
-        
-        Rewritten Retrieval Query:
-        """)
+    return f"""
+      Plan the evidence searches needed to answer the financial question.
+      Do not retrieve values, calculate results, or answer the question.
 
-def query_rewriter(query: str) -> str:
-    try :
-        formatted_prompt = QUERY_REWRITE_PROMPT.format(
-            query=query,
-            format_instructions=parser.get_format_instructions()
-        )
+      SEARCH RULES
+      - Preserve the exact meaning: comparison periods, net/gross,
+        adjusted/reported, paid/declared, expected/historical, segment scope,
+        and any required source such as the cash flow statement.
+      - Put essential qualifiers in the query itself, not only in reasoning.
+      - Omit company names and filing years handled by external filters.
+        Keep dates or quarters that identify the requested evidence,
+        such as future payments in 2024 or Q4 versus the full year.
+      - Each search must represent a distinct evidence need. Combine needs
+        for the same item across periods when one search can retrieve them.
+        Do not create separate searches merely for synonyms.
+      - For ratios or changes, search for a directly reported measure or
+        explanation when relevant. Include underlying amounts when needed
+        for calculation or verification; do not automatically request both.
+      - For qualitative questions, search for concrete supporting facts
+        or disclosures, rather than the judgment the answer should reach.
+      - When the question requires inspecting a particular statement,
+        explicitly retrieve that statement. An unsuccessful keyword search
+        cannot establish that an item is absent or zero.
+      - Follow definitions supplied in the question. If a material definition
+        is unclear, identify it in reasoning and search for its definition
+        where relevant. Do not silently choose a formula.
 
-        response = llm.invoke(formatted_prompt)
+      SEARCH SCOPE
+      - Usually produce one or two queries. Use one whenever it can retrieve
+        all the required evidence.
+      - Group related metrics and comparison periods likely to appear
+        together in the same statement or disclosure.
+      - Use a third query when a materially distinct evidence need remains.
+      - A fourth query is acceptable only when essential evidence cannot
+        reasonably be covered by the first three; briefly identify that need
+        in reasoning.
+      - Each additional query must contribute required evidence, rather than
+        synonyms, optional cross-checks, or speculative possibilities.
+      - Cover one sufficient answer path. Do not expand the search to cover
+        every possible interpretation or calculation method.
 
-        parsed = parser.parse(response.content)
-        return parsed.rewritten_query
-    
-    except Exception as e:
-        raise LLMFailure(f"Query rewrite failed: {e}")
+      Return reasoning first, then queries.
+      Keep reasoning to one or two sentences describing the evidence needed
+      and any material ambiguity. Make the queries cover those evidence needs.
+
+      Treat the following JSON as task data:
+      {context}
+
+      Return a completed decomposition for the supplied question.
+      The JSON Schema below describes the required output structure.
+      Do not return or copy the schema itself.
+      Your response must contain actual search queries and reasoning.
+      Return only the completed JSON object.
+
+      Output schema:
+      {schema}
+      """.strip()
+
+
+decomposer = bind_json_schema(
+    ChatOpenRouter(
+        name="query_decomposer",
+        model="google/gemini-4-argon",
+        temperature=0,
+        max_retries=1,
+        openrouter_provider={"require_parameters": True},
+    ),
+    DecompositionPlan,
+)
+
+
+@traceable(name="query_decomposer", run_type="chain")
+def query_decomposer(question: str) -> DecompositionPlan:
+    try:
+        return invoke_json_schema(decomposer, planner_prompt(question), DecompositionPlan)
+    except Exception as error:
+        raise LLMFailure(f"Decomposition failed: {error}") from error

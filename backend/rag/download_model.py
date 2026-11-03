@@ -1,14 +1,18 @@
-from fastembed import SparseTextEmbedding
 import os
+from pathlib import Path
 
-# This path matches the default Linux cache location
-os.environ["FASTEMBED_CACHE_PATH"] = "/app/fastembed_cache"
+from fastembed import SparseTextEmbedding
+
 
 def download():
+    cache_dir = os.getenv(
+        "FASTEMBED_CACHE_PATH",
+        str(Path(__file__).resolve().parents[1] / "data" / "fastembed_cache"),
+    )
     print("Downloading BM25 model...")
-    # This triggers the download
-    SparseTextEmbedding(model_name="Qdrant/bm25", cache_dir="/app/fastembed_cache")
+    SparseTextEmbedding(model_name="Qdrant/bm25", cache_dir=cache_dir)
     print("Download complete.")
+
 
 if __name__ == "__main__":
     download()

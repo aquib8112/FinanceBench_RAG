@@ -1,9 +1,45 @@
 import re
+
+from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.utils.function_calling import convert_to_json_schema
+from langchain_openrouter import ChatOpenRouter as BaseChatOpenRouter
 from rapidfuzz import fuzz, process
+
+class ChatOpenRouter(BaseChatOpenRouter):
+    """Report OpenRouter's actual charge to LangSmith for non-streaming calls."""
+
+    def _create_chat_result(self, response):
+        result = super()._create_chat_result(response)
+        for generation in result.generations:
+            message = generation.message
+            cost = message.response_metadata.get("cost")
+            if cost is not None and message.usage_metadata is not None:
+                message.usage_metadata["total_cost"] = cost
+        return result
+
 
 class LLMFailure(Exception):
     """Raised when an LLM call fails in a recoverable way."""
     pass
+
+def bind_json_schema(model, schema):
+    json_schema = convert_to_json_schema(schema)
+    return model.bind(
+        response_format={
+            "type": "json_schema",
+            "json_schema": {"name": json_schema.get("title", ""), "schema": json_schema, "strict": True},
+        },
+        ls_structured_output_format={
+            "kwargs": {"method": "json_schema", "strict": True}, "schema": json_schema,
+        },
+    )
+
+
+def invoke_json_schema(model, prompt, schema):
+    # Keep the model and existing Pydantic parser traced without a sequence wrapper.
+    message = model.invoke(prompt)
+    return PydanticOutputParser(pydantic_object=schema).invoke(message)
+
 
 def resolve_company(query: str, threshold: int = 80) -> str | None:
     COMPANY_ALIASES = {
@@ -88,19 +124,3 @@ def get_year_window(question: str):
     end = min(2024, max_year + 1)
     
     return sorted(list(range(start, end + 1)))
-
-def doc_to_text(docs):
-    chunks = []
-    for i, doc in enumerate(docs):
-        m = doc.metadata
-        chunk = (
-            f"=== DOCUMENT {i} ===\n"
-            f"Company: {m.get('company')}\n"
-            f"Year: {m.get('year')}\n"
-            f"Document type: {m.get('doc_type')}\n"
-            f"CONTENT:\n{m.get('full_text')}\n"
-            f"=== END DOCUMENT {i} ===\n"
-        )
-        chunks.append(chunk)
-
-    return "\n".join(chunks)

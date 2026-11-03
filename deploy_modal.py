@@ -1,5 +1,4 @@
 import modal
-import os
 
 image = (
     modal.Image.debian_slim(python_version="3.10")
@@ -8,7 +7,10 @@ image = (
         "backend", 
         remote_path="/root/backend", 
         copy=True,
-        ignore=[".env.py", "__pycache__", ".venv", ".pytest_cache"]
+        ignore=[
+            ".env", ".env.*", "!.env.example",
+            "__pycache__", ".venv", ".pytest_cache", "data/qdrant_db_old",
+        ]
     )
     .run_commands("cd /root/backend && python -m rag.download_model")
 )
@@ -17,7 +19,11 @@ app = modal.App("financebench-backend")
 
 @app.function(
     image=image,
-    secrets=[modal.Secret.from_name("my-google-ai-secret")],
+    secrets=[
+        modal.Secret.from_name("my-google-ai-secret"),
+        modal.Secret.from_name("openrouter-secret"),
+        modal.Secret.from_name("langsmith-secret"),
+    ],
     cpu=2.0,
     memory=4096, 
     timeout=600,

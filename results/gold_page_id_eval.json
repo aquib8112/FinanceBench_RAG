@@ -1,0 +1,939 @@
+[
+  {
+    "question_id": 1,
+    "page_ids": [
+      "3M_2018_10K:page:60"
+    ]
+  },
+  {
+    "question_id": 2,
+    "page_ids": [
+      "3M_2018_10K:page:58"
+    ]
+  },
+  {
+    "question_id": 3,
+    "page_ids": [
+      "3M_2022_10K:page:48",
+      "3M_2022_10K:page:50",
+      "3M_2022_10K:page:52"
+    ]
+  },
+  {
+    "question_id": 4,
+    "page_ids": [
+      "3M_2022_10K:page:27"
+    ]
+  },
+  {
+    "question_id": 5,
+    "page_ids": [
+      "3M_2022_10K:page:25"
+    ]
+  },
+  {
+    "question_id": 6,
+    "page_ids": [
+      "3M_2023Q2_10Q:page:5"
+    ]
+  },
+  {
+    "question_id": 7,
+    "page_ids": [
+      "3M_2023Q2_10Q:page:1"
+    ]
+  },
+  {
+    "question_id": 8,
+    "page_ids": [
+      "3M_2023Q2_10Q:page:62"
+    ]
+  },
+  {
+    "question_id": 9,
+    "page_ids": [
+      "ACTIVISIONBLIZZARD_2019_10K:page:69",
+      "ACTIVISIONBLIZZARD_2019_10K:page:70"
+    ]
+  },
+  {
+    "question_id": 10,
+    "page_ids": [
+      "ACTIVISIONBLIZZARD_2019_10K:page:70",
+      "ACTIVISIONBLIZZARD_2019_10K:page:73"
+    ]
+  },
+  {
+    "question_id": 11,
+    "page_ids": [
+      "ADOBE_2015_10K:page:59",
+      "ADOBE_2015_10K:page:63"
+    ]
+  },
+  {
+    "question_id": 12,
+    "page_ids": [
+      "ADOBE_2016_10K:page:62"
+    ]
+  },
+  {
+    "question_id": 13,
+    "page_ids": [
+      "ADOBE_2017_10K:page:57",
+      "ADOBE_2017_10K:page:61"
+    ]
+  },
+  {
+    "question_id": 14,
+    "page_ids": [
+      "ADOBE_2022_10K:page:54"
+    ]
+  },
+  {
+    "question_id": 15,
+    "page_ids": [
+      "ADOBE_2022_10K:page:57"
+    ]
+  },
+  {
+    "question_id": 16,
+    "page_ids": [
+      "AES_2022_10K:page:132"
+    ]
+  },
+  {
+    "question_id": 17,
+    "page_ids": [
+      "AES_2022_10K:page:130",
+      "AES_2022_10K:page:132"
+    ]
+  },
+  {
+    "question_id": 18,
+    "page_ids": [
+      "AES_2022_10K:page:130",
+      "AES_2022_10K:page:132"
+    ]
+  },
+  {
+    "question_id": 19,
+    "page_ids": [
+      "AMAZON_2017_10K:page:38",
+      "AMAZON_2017_10K:page:40"
+    ]
+  },
+  {
+    "question_id": 20,
+    "page_ids": [
+      "AMAZON_2017_10K:page:38"
+    ]
+  },
+  {
+    "question_id": 21,
+    "page_ids": [
+      "AMAZON_2019_10K:page:38"
+    ]
+  },
+  {
+    "question_id": 22,
+    "page_ids": [
+      "AMCOR_2020_10K:page:50"
+    ]
+  },
+  {
+    "question_id": 23,
+    "page_ids": [
+      "AMCOR_2022_8K_dated-2022-07-01:page:2"
+    ]
+  },
+  {
+    "question_id": 24,
+    "page_ids": [
+      "AMCOR_2023_10K:page:52"
+    ]
+  },
+  {
+    "question_id": 25,
+    "page_ids": [
+      "AMCOR_2023_10K:page:64"
+    ]
+  },
+  {
+    "question_id": 26,
+    "page_ids": [
+      "AMCOR_2023_10K:page:5"
+    ]
+  },
+  {
+    "question_id": 27,
+    "page_ids": [
+      "AMCOR_2023_10K:page:50"
+    ]
+  },
+  {
+    "question_id": 28,
+    "page_ids": [
+      "AMCOR_2023Q2_10Q:page:15"
+    ]
+  },
+  {
+    "question_id": 29,
+    "page_ids": [
+      "AMCOR_2023Q4_EARNINGS:page:12"
+    ]
+  },
+  {
+    "question_id": 30,
+    "page_ids": [
+      "AMCOR_2023Q4_EARNINGS:page:10"
+    ]
+  },
+  {
+    "question_id": 31,
+    "page_ids": [
+      "AMD_2015_10K:page:56",
+      "AMD_2015_10K:page:60"
+    ]
+  },
+  {
+    "question_id": 32,
+    "page_ids": [
+      "AMD_2022_10K:page:56"
+    ]
+  },
+  {
+    "question_id": 33,
+    "page_ids": [
+      "AMD_2022_10K:page:4"
+    ]
+  },
+  {
+    "question_id": 34,
+    "page_ids": [
+      "AMD_2022_10K:page:43"
+    ]
+  },
+  {
+    "question_id": 35,
+    "page_ids": [
+      "AMD_2022_10K:page:43"
+    ]
+  },
+  {
+    "question_id": 36,
+    "page_ids": [
+      "AMD_2022_10K:page:58"
+    ]
+  },
+  {
+    "question_id": 37,
+    "page_ids": [
+      "AMD_2022_10K:page:48"
+    ]
+  },
+  {
+    "question_id": 38,
+    "page_ids": [
+      "AMD_2022_10K:page:12"
+    ]
+  },
+  {
+    "question_id": 39,
+    "page_ids": [
+      "AMERICANEXPRESS_2022_10K:page:1"
+    ]
+  },
+  {
+    "question_id": 40,
+    "page_ids": [
+      "AMERICANEXPRESS_2022_10K:page:155"
+    ]
+  },
+  {
+    "question_id": 41,
+    "page_ids": [
+      "AMERICANEXPRESS_2022_10K:page:96"
+    ]
+  },
+  {
+    "question_id": 42,
+    "page_ids": [
+      "AMERICANEXPRESS_2022_10K:page:96"
+    ]
+  },
+  {
+    "question_id": 43,
+    "page_ids": [
+      "AMERICANEXPRESS_2022_10K:page:44"
+    ]
+  },
+  {
+    "question_id": 44,
+    "page_ids": [
+      "AMERICANEXPRESS_2022_10K:page:98"
+    ]
+  },
+  {
+    "question_id": 45,
+    "page_ids": [
+      "AMERICANEXPRESS_2022_10K:page:45"
+    ]
+  },
+  {
+    "question_id": 46,
+    "page_ids": [
+      "AMERICANWATERWORKS_2020_10K:page:86"
+    ]
+  },
+  {
+    "question_id": 47,
+    "page_ids": [
+      "AMERICANWATERWORKS_2021_10K:page:86",
+      "AMERICANWATERWORKS_2021_10K:page:88"
+    ]
+  },
+  {
+    "question_id": 48,
+    "page_ids": [
+      "AMERICANWATERWORKS_2022_10K:page:81",
+      "AMERICANWATERWORKS_2022_10K:page:82"
+    ]
+  },
+  {
+    "question_id": 49,
+    "page_ids": [
+      "BESTBUY_2017_10K:page:56"
+    ]
+  },
+  {
+    "question_id": 50,
+    "page_ids": [
+      "BESTBUY_2019_10K:page:52"
+    ]
+  },
+  {
+    "question_id": 51,
+    "page_ids": [
+      "BESTBUY_2023_10K:page:40"
+    ]
+  },
+  {
+    "question_id": 52,
+    "page_ids": [
+      "BESTBUY_2023_10K:page:51"
+    ]
+  },
+  {
+    "question_id": 53,
+    "page_ids": [
+      "BESTBUY_2023_10K:page:42"
+    ]
+  },
+  {
+    "question_id": 54,
+    "page_ids": [
+      "BESTBUY_2024Q2_10Q:page:20"
+    ]
+  },
+  {
+    "question_id": 55,
+    "page_ids": [
+      "BESTBUY_2024Q2_10Q:page:17"
+    ]
+  },
+  {
+    "question_id": 56,
+    "page_ids": [
+      "BESTBUY_2024Q2_10Q:page:18"
+    ]
+  },
+  {
+    "question_id": 57,
+    "page_ids": [
+      "BLOCK_2016_10K:page:68"
+    ]
+  },
+  {
+    "question_id": 58,
+    "page_ids": [
+      "BLOCK_2020_10K:page:86"
+    ]
+  },
+  {
+    "question_id": 59,
+    "page_ids": [
+      "BLOCK_2020_10K:page:90"
+    ]
+  },
+  {
+    "question_id": 60,
+    "page_ids": [
+      "BOEING_2018_10K:page:52"
+    ]
+  },
+  {
+    "question_id": 61,
+    "page_ids": [
+      "BOEING_2022_10K:page:62"
+    ]
+  },
+  {
+    "question_id": 62,
+    "page_ids": [
+      "BOEING_2022_10K:page:113"
+    ]
+  },
+  {
+    "question_id": 63,
+    "page_ids": [
+      "BOEING_2022_10K:page:55"
+    ]
+  },
+  {
+    "question_id": 64,
+    "page_ids": [
+      "BOEING_2022_10K:page:8",
+      "BOEING_2022_10K:page:10",
+      "BOEING_2022_10K:page:14"
+    ]
+  },
+  {
+    "question_id": 65,
+    "page_ids": [
+      "BOEING_2022_10K:page:8"
+    ]
+  },
+  {
+    "question_id": 66,
+    "page_ids": [
+      "BOEING_2022_10K:page:9"
+    ]
+  },
+  {
+    "question_id": 67,
+    "page_ids": [
+      "BOEING_2022_10K:page:55"
+    ]
+  },
+  {
+    "question_id": 68,
+    "page_ids": [
+      "COCACOLA_2017_10K:page:74",
+      "COCACOLA_2017_10K:page:76"
+    ]
+  },
+  {
+    "question_id": 69,
+    "page_ids": [
+      "COCACOLA_2021_10K:page:62"
+    ]
+  },
+  {
+    "question_id": 70,
+    "page_ids": [
+      "COCACOLA_2022_10K:page:63",
+      "COCACOLA_2022_10K:page:66"
+    ]
+  },
+  {
+    "question_id": 71,
+    "page_ids": [
+      "CORNING_2020_10K:page:70",
+      "CORNING_2020_10K:page:72"
+    ]
+  },
+  {
+    "question_id": 72,
+    "page_ids": [
+      "CORNING_2021_10K:page:65"
+    ]
+  },
+  {
+    "question_id": 73,
+    "page_ids": [
+      "CORNING_2022_10K:page:24"
+    ]
+  },
+  {
+    "question_id": 74,
+    "page_ids": [
+      "CORNING_2022_10K:page:60"
+    ]
+  },
+  {
+    "question_id": 75,
+    "page_ids": [
+      "COSTCO_2021_10K:page:38"
+    ]
+  },
+  {
+    "question_id": 76,
+    "page_ids": [
+      "CVSHEALTH_2018_10K:page:302",
+      "CVSHEALTH_2018_10K:page:304"
+    ]
+  },
+  {
+    "question_id": 77,
+    "page_ids": [
+      "CVSHEALTH_2022_10K:page:108",
+      "CVSHEALTH_2022_10K:page:110"
+    ]
+  },
+  {
+    "question_id": 78,
+    "page_ids": [
+      "CVSHEALTH_2022_10K:page:173",
+      "CVSHEALTH_2022_10K:page:174"
+    ]
+  },
+  {
+    "question_id": 79,
+    "page_ids": [
+      "CVSHEALTH_2022_10K:page:68"
+    ]
+  },
+  {
+    "question_id": 80,
+    "page_ids": [
+      "FOOTLOCKER_2022_8K_dated_2022-08-19:page:2"
+    ]
+  },
+  {
+    "question_id": 81,
+    "page_ids": [
+      "FOOTLOCKER_2022_8K_dated-2022-05-20:page:2"
+    ]
+  },
+  {
+    "question_id": 82,
+    "page_ids": [
+      "GENERALMILLS_2019_10K:page:53",
+      "GENERALMILLS_2019_10K:page:55"
+    ]
+  },
+  {
+    "question_id": 83,
+    "page_ids": [
+      "GENERALMILLS_2020_10K:page:50"
+    ]
+  },
+  {
+    "question_id": 84,
+    "page_ids": [
+      "GENERALMILLS_2020_10K:page:52"
+    ]
+  },
+  {
+    "question_id": 85,
+    "page_ids": [
+      "GENERALMILLS_2022_10K:page:45",
+      "GENERALMILLS_2022_10K:page:49"
+    ]
+  },
+  {
+    "question_id": 86,
+    "page_ids": [
+      "JOHNSON_JOHNSON_2022_10K:page:28"
+    ]
+  },
+  {
+    "question_id": 87,
+    "page_ids": [
+      "JOHNSON_JOHNSON_2022_10K:page:34"
+    ]
+  },
+  {
+    "question_id": 88,
+    "page_ids": [
+      "JOHNSON_JOHNSON_2022_10K:page:46",
+      "JOHNSON_JOHNSON_2022_10K:page:47"
+    ]
+  },
+  {
+    "question_id": 89,
+    "page_ids": [
+      "JOHNSON_JOHNSON_2022Q4_EARNINGS:page:1"
+    ]
+  },
+  {
+    "question_id": 90,
+    "page_ids": [
+      "JOHNSON_JOHNSON_2022Q4_EARNINGS:page:2"
+    ]
+  },
+  {
+    "question_id": 91,
+    "page_ids": [
+      "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30:page:4"
+    ]
+  },
+  {
+    "question_id": 92,
+    "page_ids": [
+      "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30:page:4"
+    ]
+  },
+  {
+    "question_id": 93,
+    "page_ids": [
+      "JOHNSON_JOHNSON_2023_8K_dated-2023-08-30:page:4"
+    ]
+  },
+  {
+    "question_id": 94,
+    "page_ids": [
+      "JOHNSON_JOHNSON_2023Q2_EARNINGS:page:10"
+    ]
+  },
+  {
+    "question_id": 95,
+    "page_ids": [
+      "JPMORGAN_2021Q1_10Q:page:19"
+    ]
+  },
+  {
+    "question_id": 96,
+    "page_ids": [
+      "JPMORGAN_2021Q1_10Q:page:6"
+    ]
+  },
+  {
+    "question_id": 97,
+    "page_ids": [
+      "JPMORGAN_2022_10K:page:3"
+    ]
+  },
+  {
+    "question_id": 98,
+    "page_ids": [
+      "JPMORGAN_2022Q2_10Q:page:21"
+    ]
+  },
+  {
+    "question_id": 99,
+    "page_ids": [
+      "JPMORGAN_2023Q2_10Q:page:85"
+    ]
+  },
+  {
+    "question_id": 100,
+    "page_ids": [
+      "KRAFTHEINZ_2019_10K:page:50",
+      "KRAFTHEINZ_2019_10K:page:52"
+    ]
+  },
+  {
+    "question_id": 101,
+    "page_ids": [
+      "LOCKHEEDMARTIN_2020_10K:page:67",
+      "LOCKHEEDMARTIN_2020_10K:page:69"
+    ]
+  },
+  {
+    "question_id": 102,
+    "page_ids": [
+      "LOCKHEEDMARTIN_2021_10K:page:68"
+    ]
+  },
+  {
+    "question_id": 103,
+    "page_ids": [
+      "LOCKHEEDMARTIN_2022_10K:page:63"
+    ]
+  },
+  {
+    "question_id": 104,
+    "page_ids": [
+      "MGMRESORTS_2018_10K:page:57"
+    ]
+  },
+  {
+    "question_id": 105,
+    "page_ids": [
+      "MGMRESORTS_2020_10K:page:65",
+      "MGMRESORTS_2020_10K:page:67"
+    ]
+  },
+  {
+    "question_id": 106,
+    "page_ids": [
+      "MGMRESORTS_2022_10K:page:32"
+    ]
+  },
+  {
+    "question_id": 107,
+    "page_ids": [
+      "MGMRESORTS_2022Q4_EARNINGS:page:13"
+    ]
+  },
+  {
+    "question_id": 108,
+    "page_ids": [
+      "MGMRESORTS_2022Q4_EARNINGS:page:14"
+    ]
+  },
+  {
+    "question_id": 109,
+    "page_ids": [
+      "MGMRESORTS_2022Q4_EARNINGS:page:3",
+      "MGMRESORTS_2022Q4_EARNINGS:page:4"
+    ]
+  },
+  {
+    "question_id": 110,
+    "page_ids": [
+      "MGMRESORTS_2023Q2_10Q:page:11"
+    ]
+  },
+  {
+    "question_id": 111,
+    "page_ids": [
+      "MICROSOFT_2016_10K:page:52"
+    ]
+  },
+  {
+    "question_id": 112,
+    "page_ids": [
+      "MICROSOFT_2023_10K:page:60"
+    ]
+  },
+  {
+    "question_id": 113,
+    "page_ids": [
+      "NETFLIX_2015_10K:page:40",
+      "NETFLIX_2015_10K:page:42"
+    ]
+  },
+  {
+    "question_id": 114,
+    "page_ids": [
+      "NETFLIX_2017_10K:page:45"
+    ]
+  },
+  {
+    "question_id": 115,
+    "page_ids": [
+      "NIKE_2018_10K:page:46"
+    ]
+  },
+  {
+    "question_id": 116,
+    "page_ids": [
+      "NIKE_2019_10K:page:54"
+    ]
+  },
+  {
+    "question_id": 117,
+    "page_ids": [
+      "NIKE_2021_10K:page:59",
+      "NIKE_2021_10K:page:61"
+    ]
+  },
+  {
+    "question_id": 118,
+    "page_ids": [
+      "NIKE_2023_10K:page:62"
+    ]
+  },
+  {
+    "question_id": 119,
+    "page_ids": [
+      "PAYPAL_2022_10K:page:61"
+    ]
+  },
+  {
+    "question_id": 120,
+    "page_ids": [
+      "PEPSICO_2021_10K:page:63"
+    ]
+  },
+  {
+    "question_id": 121,
+    "page_ids": [
+      "PEPSICO_2022_10K:page:4",
+      "PEPSICO_2022_10K:page:5"
+    ]
+  },
+  {
+    "question_id": 122,
+    "page_ids": [
+      "PEPSICO_2022_10K:page:26"
+    ]
+  },
+  {
+    "question_id": 123,
+    "page_ids": [
+      "PEPSICO_2022_10K:page:78"
+    ]
+  },
+  {
+    "question_id": 124,
+    "page_ids": [
+      "PEPSICO_2022_10K:page:62",
+      "PEPSICO_2022_10K:page:64"
+    ]
+  },
+  {
+    "question_id": 125,
+    "page_ids": [
+      "PEPSICO_2022_10K:page:62",
+      "PEPSICO_2022_10K:page:64"
+    ]
+  },
+  {
+    "question_id": 126,
+    "page_ids": [
+      "PEPSICO_2023_8K_dated-2023-05-05:page:4"
+    ]
+  },
+  {
+    "question_id": 127,
+    "page_ids": [
+      "PEPSICO_2023_8K_dated-2023-05-30:page:2"
+    ]
+  },
+  {
+    "question_id": 128,
+    "page_ids": [
+      "PEPSICO_2023_8K_dated-2023-05-30:page:2"
+    ]
+  },
+  {
+    "question_id": 129,
+    "page_ids": [
+      "PEPSICO_2023Q1_EARNINGS:page:1"
+    ]
+  },
+  {
+    "question_id": 130,
+    "page_ids": [
+      "PEPSICO_2023Q1_EARNINGS:page:1"
+    ]
+  },
+  {
+    "question_id": 131,
+    "page_ids": [
+      "PFIZER_2021_10K:page:58"
+    ]
+  },
+  {
+    "question_id": 132,
+    "page_ids": [
+      "PFIZER_2021_10K:page:56"
+    ]
+  },
+  {
+    "question_id": 133,
+    "page_ids": [
+      "PFIZER_2021_10K:page:69",
+      "PFIZER_2021_10K:page:70"
+    ]
+  },
+  {
+    "question_id": 134,
+    "page_ids": [
+      "Pfizer_2023Q2_10Q:page:41"
+    ]
+  },
+  {
+    "question_id": 135,
+    "page_ids": [
+      "Pfizer_2023Q2_10Q:page:38"
+    ]
+  },
+  {
+    "question_id": 136,
+    "page_ids": [
+      "Pfizer_2023Q2_10Q:page:41"
+    ]
+  },
+  {
+    "question_id": 137,
+    "page_ids": [
+      "ULTABEAUTY_2023_10K:page:1"
+    ]
+  },
+  {
+    "question_id": 138,
+    "page_ids": [
+      "ULTABEAUTY_2023_10K:page:57"
+    ]
+  },
+  {
+    "question_id": 139,
+    "page_ids": [
+      "ULTABEAUTY_2023Q4_EARNINGS:page:2"
+    ]
+  },
+  {
+    "question_id": 140,
+    "page_ids": [
+      "ULTABEAUTY_2023Q4_EARNINGS:page:3"
+    ]
+  },
+  {
+    "question_id": 141,
+    "page_ids": [
+      "ULTABEAUTY_2023Q4_EARNINGS:page:3"
+    ]
+  },
+  {
+    "question_id": 142,
+    "page_ids": [
+      "ULTABEAUTY_2023Q4_EARNINGS:page:2"
+    ]
+  },
+  {
+    "question_id": 143,
+    "page_ids": [
+      "VERIZON_2021_10K:page:85"
+    ]
+  },
+  {
+    "question_id": 144,
+    "page_ids": [
+      "VERIZON_2021_10K:page:63",
+      "VERIZON_2021_10K:page:94"
+    ]
+  },
+  {
+    "question_id": 145,
+    "page_ids": [
+      "VERIZON_2022_10K:page:56"
+    ]
+  },
+  {
+    "question_id": 146,
+    "page_ids": [
+      "VERIZON_2022_10K:page:56",
+      "VERIZON_2022_10K:page:23"
+    ]
+  },
+  {
+    "question_id": 147,
+    "page_ids": [
+      "VERIZON_2022_10K:page:77"
+    ]
+  },
+  {
+    "question_id": 148,
+    "page_ids": [
+      "WALMART_2018_10K:page:57",
+      "WALMART_2018_10K:page:59"
+    ]
+  },
+  {
+    "question_id": 149,
+    "page_ids": [
+      "WALMART_2019_10K:page:48"
+    ]
+  },
+  {
+    "question_id": 150,
+    "page_ids": [
+      "WALMART_2020_10K:page:51",
+      "WALMART_2020_10K:page:56"
+    ]
+  }
+]

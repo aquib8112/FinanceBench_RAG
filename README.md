@@ -1,76 +1,44 @@
 # FinanceBench_RAG
 
+Explore the system through the [live demo](https://aquib8112.github.io/FinanceBench_RAG/).
+
 ## Overview
-FinanceBench_RAG is an experimental retrieval-augmented generation (RAG) system built to answer questions from the public evaluation subset of [**FinanceBench**](https://arxiv.org/pdf/2311.11944), a 2024 benchmark for open-book financial question answering over long regulatory documents.
 
-FinanceBench evaluates whether large language models can answer clear-cut, expert-written financial questions grounded in real filings such as 10-Ks, 10-Qs, 8-Ks, and earnings materials. Prior work shows that even state-of-the-art models with retrieval struggle on this benchmark, and that brute-force long-context prompting is impractical due to latency and scalability constraints.
+FinanceBench_RAG answers financial questions using evidence from company filings, including annual reports, quarterly reports, and earnings releases. It combines document search with language models to find relevant pages, check the evidence, and produce answers with supporting calculations and citations.
 
-On the 150 publicly available FinanceBench evaluation questions, the system achieves ~76% end-to-end answer accuracy. Error analysis shows that missed evidence during retrieval remains the dominant source of failure, while the remaining errors occur primarily on interpretive or multi-step reasoning questions even when relevant pages are retrieved. This confirms that improving retrieval coverage is still the highest-leverage direction for further gains.
+The system achieves **87.3% end-to-end answer accuracy (131/150)** on the public [FinanceBench](https://github.com/patronus-ai/financebench) evaluation questions. It retrieves relevant pages rather than sending entire filings to the answering model.
 
-This repository represents an ongoing research and engineering effort rather than a production system.
+This is a research and engineering project, with a web interface for exploring answers and their sources.
 
-**Relevant resources:**
-- FinanceBench paper: https://arxiv.org/pdf/2311.11944
-- Original benchmark repository: https://github.com/patronus-ai/financebench
+## How It Works
 
----
+1. **Identify the company and years** to narrow the search.
+2. **Plan the evidence searches.** A language model breaks the question into focused queries, usually one or two, covering the facts needed to answer it.
+3. **Retrieve candidate pages** using keyword and semantic search over page summaries, then merge results and remove duplicate pages.
+4. **Review the evidence.** A language model checks each page's usefulness, whether the pages collectively support an answer, and what information is missing.
+5. **Generate an answer from the original pages**, with calculations and citations to the sources used. When essential evidence is missing, the model is instructed to explain the limitation and abstain.
 
-## End-to-End Flow
-At a high level, the system operates as follows:
+LangSmith traces the pipeline for debugging and evaluation. The web interface shows search progress, evidence assessments, and cited sources.
 
-1. A user query is received.
-2. Company names and a relevant year window are extracted from the query.
-3. The query is rewritten into a retrieval-friendly form using an LLM.
-4. Hybrid retrieval is performed over **page-level document summaries**.
-5. Retrieved pages are passed through an **LLM relevance judge** that removes clearly irrelevant evidence.
-6. The **full page contents** of the remaining documents are sent to a generator LLM.
-7. The generator produces an answer and explicitly references the pages it used.
-8. All stages of the pipeline are traced and logged using : **langsmith** for debugging and evaluation.
+## Design Choices
 
----
+- **Pages as evidence units:** The corpus contains 11,954 page chunks from 84 documents. Tables stay with their surrounding text, headings, units, and footnotes so the answering model can interpret them together.
+- **Summaries for search, original content for answers:** Search uses concise page summaries; evidence review and answer generation use the original structured page content.
+- **Hybrid retrieval:** Qdrant combines BM25 keyword search with Gemini Embedding 2 semantic search. Company and year filters narrow the search before ranking.
+- **Evidence review before generation:** The judge retains useful pages even when the full answer is not yet supported. Those pages still reach the answering model; the pipeline does not automatically search again for missing evidence.
 
-## Retrieval Design Choices
-Key retrieval decisions in this system:
+## Results and Limitations
 
-- **Page-level retrieval**: Documents are indexed by page rather than by structural or heading-based chunks. Structural chunking produced ~36K chunks on this corpus, while page-level indexing reduces the search space to ~12K chunks, improving ranking stability, lowering latency, and reducing the chance of retrieving fragmented context.
-- **Summary-based embeddings**: Each page is represented by a cleaned semantic summary for retrieval. Raw financial pages contain tables, boilerplate text, and formatting noise that degrade embedding quality; summaries compress the signal into clearer semantic units. Summaries are used for both BM25 and dense search but are never passed to the generator.
-- **Single rewritten query**: Multi-query expansion or HYDE was intentionally avoided in favor of a single normalized query to limit noise and improve precision at low retrieval depth.
-- **Hybrid signals**: Sparse (BM25) and dense embedding retrieval are both used, with document-level deduplication applied after retrieval.
-- **Metadata filters**: Company and year constraints are applied early to reduce the search space before ranking.
-- **LLM relevance judge**: Retrieved pages are filtered through an LLM that removes clearly irrelevant evidence before generation, reducing hallucination risk and preventing noisy context from reaching the answer stage.
+The saved [evaluation results](results/final_run.json) record **87.3% end-to-end answer accuracy (131/150)** on the [public question set](results/page_eval.csv), with 19 uncredited answers. [Detailed outputs](results/detailed_final_run.json) include search queries, retrieved pages, evidence assessments, and citations.
 
-These design choices prioritize precise evidence retrieval under realistic constraints. On the 150 public FinanceBench evaluation questions, the system achieves ~76% end-to-end answer accuracy, substantially outperforming shared vector-store RAG configurations reported in the FinanceBench paper, which achieve ~19% accuracy on the same subset, and approaching long-context baselines 79% without requiring entire filings in prompt context.
+Used agents to find **question-compliant alternative evidence for 78 FinanceBench questions**, identifying **218 additional page references** beyond FinanceBench's [gold evidence](results/gold_page_id_eval.json). The [expanded evidence catalogue](results/compliant_evidence_eval.json) also records combinations of pages assessed as sufficient to answer a question. This audit supports retrieval evaluation and is separate from the live answering pipeline.
 
-Error analysis indicates that retrieval coverage remains the primary bottleneck in failed cases, while the remaining errors occur mainly on interpretive or multi-step financial questions even when the correct evidence is retrieved. This suggests that improving retrieval quality is the main driver of performance gains, with reasoning limits emerging only after evidence selection succeeds.
+A separate manual review, informed by the [FinanceBench paper's evaluation guidelines](https://arxiv.org/abs/2311.11944), accepts seven additional, source-supported answers that differ from the reference answers, bringing the reviewed score to **138/150 (92.0%)**. These involve differences in financial definitions, reporting periods, or source restrictions. This is a manual reassessment of the same saved answers, not a new run or official benchmark adjudication; **87.3% remains the primary reported result**.
 
----
+Remaining challenges include unnecessary abstentions, fiscal-year interpretation, incomplete evidence, and reasoning errors despite relevant sources. Three questions omit the company name and remain uncredited in the full 150-question denominator. Results cover this public subset; broader generalization has not been established.
 
-## Evaluation & Known Limits
-Evaluation was conducted on the 150 public FinanceBench questions.
+## Running the Project
 
-### Overall Outcome
-- ~76% answered correctly  
-- 36 failures total  
+See the [data preparation guide](data_processing/README.md) for extraction, page construction, summaries, and downloadable data and indexes. Raw filings and vector indexes are not bundled with the repository.
 
-### Failure Breakdown
-- **24 / 36 failures** were caused by incorrect evidence retrieval  
-- **12 / 36 failures** occurred despite correct evidence being retrieved (reasoning or interpretation errors)  
-
-### Failure Patterns by Question Type
-- **Domain-relevant:** 18 failures  
-- **Novel generated:** 14 failures  
-- **Metrics-generated:** 4 failures  
-
-### Key Takeaway
-Most errors stem from missing or noisy retrieval rather than generation quality.  
-When the correct evidence is retrieved, the system answers correctly in the majority of cases, with remaining failures concentrated in interpretive or multi-step financial reasoning.
-
----
-
-## Notes
-
-Due to size constraints, raw FinanceBench documents and vector indexes are not included in this repository.  
-The system assumes preprocessed page-level documents and a corresponding vector index, as described above.  
-This project is intended for research and experimentation, not as a plug-and-play setup.
-
-If you are interested in running the system end-to-end or discussing the data preparation process, feel free to reach out.
+Extract the Gemini Embedding 2 index into `backend/data/qdrant_db/`, with `meta.json` directly inside it. Copy `backend/.env.example` to `backend/.env` and configure Google, OpenRouter, and LangSmith keys. Query embeddings require `gemini-embedding-2` with 3,072 dimensions; the older Embedding 001 index is incompatible. From `backend`, start the API with `python -m uvicorn server:app --reload` using your project environment.

@@ -85,54 +85,54 @@ const documentsMap = {
     "WALMART_2020_10K": { document_name: "WALMART_2020_10K", company: "walmart", year: 2020, document_type: "10k", quarter: null, date: null },
 }
 
-function groupByCompany(data) {
-    const result = {};
 
-    for (const key in data) {
-        const item = data[key];
-        const company = item.company;
-
-        if (!result[company]) result[company] = {};
-        if (!result[company][item.year]) result[company][item.year] = [];
-
-        result[company][item.year].push(item);
-    }
-
-    return result;
-}
+const companyNames = {
+  "3m": "3M", aes: "AES", amd: "AMD", activisionblizzard: "Activision Blizzard",
+  americanexpress: "American Express", americanwaterworks: "American Water Works",
+  bestbuy: "Best Buy", cocacola: "Coca-Cola", cvshealth: "CVS Health",
+  footlocker: "Foot Locker", generalmills: "General Mills", johnson_johnson: "Johnson & Johnson",
+  jpmorgan: "JPMorgan", kraftheinz: "Kraft Heinz", lockheedmartin: "Lockheed Martin",
+  mgmresorts: "MGM Resorts", paypal: "PayPal", pepsico: "PepsiCo", ultabeauty: "Ulta Beauty"
+};
+const filingTypes = { "10k": "10-K", "10q": "10-Q", "8k": "8-K", earnings: "Earnings" };
+const companyName = filing => companyNames[filing.company] || filing.company[0].toUpperCase() + filing.company.slice(1);
+const quarter = filing => filing.quarter ? String(filing.quarter).replace(/^q/i, "") : "";
+const normalize = value => value.toLowerCase().replace(/[\s&._-]/g, "");
+const dateFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+const filings = Object.values(documentsMap).sort((a, b) =>
+  companyName(a).localeCompare(companyName(b), "en", { sensitivity: "base" }) ||
+  b.year - a.year || Number(quarter(b) || 4) - Number(quarter(a) || 4) ||
+  (b.date || "").localeCompare(a.date || "") || a.document_type.localeCompare(b.document_type)
+);
+const search = document.querySelector("#company-search");
+const tbody = document.querySelector("#filings-body");
 
 function renderFilings() {
-    const container = document.getElementById("filings-container");
-    const grouped = groupByCompany(documentsMap);
-
-    Object.keys(grouped).sort().forEach(company => {
-        const companyBlock = document.createElement("div");
-        companyBlock.className = "company-block";
-
-        const title = document.createElement("div");
-        title.className = "company-title";
-        title.textContent = company.toUpperCase();
-        companyBlock.appendChild(title);
-
-        const years = grouped[company];
-        Object.keys(years).sort((a,b) => b - a).forEach(year => {
-            years[year].forEach(filing => {
-                const div = document.createElement("div");
-                div.className = "filing";
-
-                const quarter = filing.quarter ? ` Q${filing.quarter}` : "";
-                div.innerHTML = `
-                    <span class="year">${year}</span>
-                    <span class="type">(${filing.document_type.toUpperCase()}${quarter})</span>
-                    - ${filing.document_name}
-                `;
-
-                companyBlock.appendChild(div);
-            });
-        });
-
-        container.appendChild(companyBlock);
-    });
+  const query = normalize(search.value.trim());
+  const visible = filings.filter(filing => normalize(companyName(filing)).includes(query));
+  const fragment = document.createDocumentFragment();
+  visible.forEach(filing => {
+    const row = document.createElement("tr");
+    row.innerHTML = '<th scope="row"></th><td><span class="period"></span></td><td><span class="filing-badge"></span></td>';
+    row.querySelector("th").textContent = companyName(filing);
+    row.querySelector(".period").textContent = filing.year + (quarter(filing) ? " Q" + quarter(filing) : "");
+    row.querySelector(".filing-badge").textContent = filingTypes[filing.document_type];
+    if (filing.date) {
+      const date = document.createElement("time");
+      date.className = "report-date";
+      date.dateTime = filing.date;
+      date.textContent = dateFormat.format(new Date(filing.date + "T00:00:00Z"));
+      row.querySelector("td").append(date);
+    }
+    fragment.append(row);
+  });
+  tbody.replaceChildren(fragment);
+  const count = new Set(visible.map(filing => filing.company)).size;
+  document.querySelector("#results-count").textContent =
+    (query ? visible.length + " of " : "") + filings.length + " filings \u00b7 " +
+    count + (count === 1 ? " company" : " companies");
+  document.querySelector(".empty-state").hidden = visible.length > 0;
 }
 
+search.addEventListener("input", renderFilings);
 renderFilings();

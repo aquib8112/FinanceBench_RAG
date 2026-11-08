@@ -1,16 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Overview</title>
-    <link rel="stylesheet" href="warning_page.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#14231c">
+  <meta name="description" content="Browse the financial filings available to the FinanceBench research assistant.">
+  <title>Available filings - FinanceBench_RAG</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2314231c'/%3E%3Cpath d='M8 24V14h4v10zm6 0V8h4v16zm6 0V11h4v13z' fill='%23c6dea9'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;600&family=IBM+Plex+Mono:wght@400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="warning_page.css">
+  <script defer src="warning_page.js"></script>
 </head>
 <body>
-    <h1>Available Filings</h1>
-    <div id="filings-container"></div>
+  <a class="skip-link" href="#company-search">Skip to company search</a>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="FinanceBench_RAG home"><svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true"><path d="M2 25V13h6v12zm9 0V3h6v22zm9 0V8h6v17z"/></svg><span class="brand-wordmark">FinanceBench<span class="brand-suffix">_RAG</span></span></a>
+  </header>
 
-    <script src="warning_page.js"></script>
-    <script src="script.js"></script>
+  <main class="filings-main">
+    <header class="filings-intro">
+      <p class="eyebrow">THE DOCUMENT COLLECTION</p>
+      <h1>Available <em>filings.</em></h1>
+      <p>Explore the financial documents this assistant can answer questions about.</p>
+    </header>
+    <section aria-label="Available financial filings">
+      <div class="filings-toolbar">
+        <div class="company-search">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+          <label class="sr-only" for="company-search">Search companies</label>
+          <input id="company-search" type="search" placeholder="Search companies..." autocomplete="off" spellcheck="false" aria-controls="filings-body">
+        </div>
+        <p id="results-count" role="status" aria-live="polite" aria-atomic="true"></p>
+      </div>
+      <div class="filings-table">
+        <table>
+          <caption class="sr-only">Financial filings, ordered by company and then newest period first.</caption>
+          <thead><tr><th scope="col">Company</th><th scope="col">Period</th><th scope="col">Filing</th></tr></thead>
+          <tbody id="filings-body"></tbody>
+        </table>
+        <p class="empty-state" hidden>No companies match the search. Try another company name.</p>
+      </div>
+      <noscript><p>Please enable JavaScript to browse this document collection.</p></noscript>
+      <p class="coverage-note">This is a fixed collection. Documents outside it are not available to the assistant.</p>
+    </section>
+  </main>
 </body>
 </html>

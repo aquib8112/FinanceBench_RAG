@@ -1,20 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document Sources</title>
-  <link rel="stylesheet" href="sources_page.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#14231c">
+  <meta name="description" content="Explore the source pages behind a FinanceBench answer, with page overviews and original evidence.">
+  <title>Sources behind the answer - FinanceBench_RAG</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2314231c'/%3E%3Cpath d='M8 24V14h4v10zm6 0V8h4v16zm6 0V11h4v13z' fill='%23c6dea9'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;600&family=IBM+Plex+Mono:wght@400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="sources_page.css">
+  <script defer src="sources_page.js"></script>
 </head>
-
 <body>
-  <div class="container">
-    <h1>Sources Used</h1>
-
-    <!-- Container where JS will render the cards -->
-    <div id="sources-container" class="sources-container"></div>
-  </div>
-
-  <script src="sources_page.js"></script>
+  <a class="skip-link" href="#sources-container">Skip to source pages</a>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="FinanceBench_RAG home"><svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true"><path d="M2 25V13h6v12zm9 0V3h6v22zm9 0V8h6v17z"/></svg><span class="brand-wordmark">FinanceBench<span class="brand-suffix">_RAG</span></span></a>
+  </header>
+  <main class="sources-main">
+    <header class="sources-intro">
+      <p class="eyebrow">FOLLOW THE EVIDENCE</p>
+      <h1>Sources behind the <em>answer.</em></h1>
+      <p id="source-count">The pages used to support the answer.</p>
+    </header>
+    <div id="sources-container" tabindex="-1"></div>
+    <noscript><p>Please enable JavaScript to view the source pages.</p></noscript>
+    <p class="source-note" hidden>Page overviews are generated. Expand a source to inspect the original page.</p>
+  </main>
 </body>
 </html>

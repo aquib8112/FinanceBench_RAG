@@ -1,59 +1,45 @@
-body {
-  text-align: center;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  margin: 20px;
-  background: #212121;
-  color: #e0e0e0;
-}
-
-h1 {
-  margin-bottom: 20px;
-  font-size: 22px;
-  font-weight: 600;
-}
-
-#filings-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.company-block {
-  display: inline-block;
-  text-align: left;
-  width: 50%;
-  background: #2a2a2a;
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-  font-size: 14px;
-}
-
-.company-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  color: #fff;
-}
-
-.filing {
-  padding: 5px 0;
-  border-bottom: 1px solid #3a3a3a;
-}
-
-.filing:last-child {
-  border-bottom: none;
-}
-
-.year {
-  font-weight: 600;
-  color: #bbb;
-}
-
-.type {
-  margin-left: 6px;
-  font-size: 13px;
-  color: #888;
+.filings-main { width: min(900px, calc(100% - 64px)); margin: 0 auto; padding: 54px 0 32px; }
+.filings-intro { margin-bottom: 30px; }
+.filings-intro .eyebrow { margin-bottom: 16px; }
+.filings-intro h1 { font-size: clamp(42px, 5vw, 57px); margin-bottom: 15px; }
+.filings-intro > p:last-child { margin: 0; color: var(--muted); font-size: 13px; }
+.filings-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 17px; }
+.company-search { display: flex; align-items: center; gap: 10px; width: min(350px, 100%); padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.company-search:focus-within { border-color: var(--sage); }
+.company-search .icon { color: var(--muted); width: 16px; height: 16px; }
+.company-search input { width: 100%; min-width: 0; padding: 0; border: none; outline: none; background: transparent; color: var(--text); font: 13px/1.7 var(--sans); }
+.company-search input::placeholder { color: var(--muted); opacity: 1; }
+.company-search input:focus-visible { outline: none; }
+#results-count { color: var(--muted); font-size: 11px; margin: 0; }
+.filings-table { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; text-align: left; }
+thead { background: var(--surface); }
+thead th { font: 10px var(--mono); letter-spacing: .6px; color: var(--muted); padding-block: 15px; }
+th, td { padding: 12px 24px; border-bottom: 1px solid #2b4032; vertical-align: top; }
+th:first-child { width: 49%; }
+th:nth-child(2) { width: 28%; }
+th:last-child { width: 23%; }
+tbody th { font-weight: 500; overflow-wrap: anywhere; }
+tbody tr:last-child > * { border-bottom: none; }
+tbody tr:hover { background: #1c2e2480; }
+.period { white-space: nowrap; color: #c3ceba; font-variant-numeric: tabular-nums; }
+.report-date { display: block; margin-top: 2px; font-size: 10px; color: var(--muted); }
+.filing-badge { display: inline-block; padding: 2px 9px; border: 1px solid #405538; border-radius: 5px; background: #233728; color: var(--sage); font-size: 10px; white-space: nowrap; }
+.empty-state { margin: 0; padding: 36px 20px; color: var(--muted); text-align: center; font-size: 13px; }
+.coverage-note { margin: 16px 0 0; font-size: 11px; color: var(--muted); }
+@media (max-width: 600px) {
+  .filings-main { width: calc(100% - 36px); padding-top: 34px; }
+  .filings-intro { margin-bottom: 24px; }
+  .filings-intro > p:last-child { font-size: 12px; }
+  .filings-toolbar { flex-direction: column; align-items: stretch; gap: 10px; margin-bottom: 13px; }
+  .company-search { width: 100%; }
+  table { font-size: 12px; }
+  th, td { padding: 12px 11px; }
+  th:first-child { width: 43%; }
+  th:nth-child(2) { width: 32%; }
+  th:last-child { width: 25%; }
+  thead th { font-size: 9px; }
+  .filing-badge { padding-inline: 6px; font-size: 9px; }
+  .report-date { font-size: 9px; }
+  .coverage-note { font-size: 10px; }
 }

@@ -11,7 +11,8 @@ load_dotenv()
 
 
 @traceable(name="pipeline_step")
-def pipeline(query):
+def pipeline(query, on_progress=None):
+    notify = on_progress or (lambda _: None)
     try:
         with trace("get_year_window", run_type="tool") as run:
             run.add_inputs({"question": query})
@@ -22,17 +23,51 @@ def pipeline(query):
             company = resolve_company(query)
             run.add_outputs({"company": company})
 
+        notify({"message": "Planning the search\u2026", "company": company, "years": years})
         plan = query_decomposer(query)
+        notify({"message": "Searching the filings\u2026", "company": company, "query_count": len(plan.queries)})
         pages = retrieve_queries(plan.queries, company, years, k=8)
 
+        notify({
+            "message": f"Reviewing {len(pages)} candidate page{'s' if len(pages) != 1 else ''}\u2026",
+            "detail": "Checking which pages address your question.",
+        })
         judgment = context_judge(query, plan.queries, pages)
-        useful_pages = [pages[audit.page_index] for audit in judgment.pages if audit.is_useful]
+        useful_audits = [audit for audit in judgment.pages if audit.is_useful]
+        useful_pages = [pages[audit.page_index] for audit in useful_audits]
         # Useful pages still reach generation when context is insufficient; no search retry.
+        notify({"message": "Writing your answer\u2026", "selected_count": len(useful_pages)})
         response = generator(query, useful_pages)
         selected_docs = [useful_pages[index] for index in response.indexes]
+        cited_indexes = {useful_audits[index].page_index for index in response.indexes}
+        research = {
+            "company": company,
+            "years": years,
+            "queries": plan.queries,
+            "required_data_points": judgment.required_data_points,
+            "retrieved_count": len(pages),
+            "selected_count": len(useful_pages),
+            "cited_count": len(selected_docs),
+            "is_context_enough": judgment.is_context_enough,
+            "sufficiency_reason": judgment.sufficiency_reason,
+            "missing_information": judgment.missing_information,
+            "pages": [
+                {
+                    "metadata": {
+                        key: value for key, value in pages[audit.page_index].metadata.items()
+                        if key in {"company", "fiscal_year", "year", "fiscal_quarter", "quarter",
+                                   "document_type", "page_in_pdf", "fiscal_date"}
+                    },
+                    "analysis": audit.analysis,
+                    "is_cited": audit.page_index in cited_indexes,
+                }
+                for audit in useful_audits
+            ],
+        }
 
         return {
             "answer": f"## Reasoning\n{response.reasoning}\n\n## Answer\n{response.answer}",
+            "research": research,
             "documents": [
                 {"metadata": page.metadata, "page_content": page.page_content}
                 for page in selected_docs

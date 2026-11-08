@@ -1,71 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FinanceBench RAG</title>
-
-  <!-- CSS now inside docs -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#14231c">
+  <meta name="description" content="Ask questions about financial filings and explore the source pages behind each answer.">
+  <title>FinanceBench_RAG - Financial answers, grounded in evidence</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2314231c'/%3E%3Cpath d='M8 24V14h4v10zm6 0V8h4v16zm6 0V11h4v13z' fill='%23c6dea9'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;600&family=IBM+Plex+Mono:wght@400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
+  <script defer src="script.js"></script>
 </head>
-<body>
+<body class="chat-page">
+  <a class="skip-link" href="#userInput">Skip to question</a>
+  <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="external" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+    <symbol id="book" viewBox="0 0 24 24"><path d="M12 5v15M3 4h5a4 4 0 0 1 4 2 4 4 0 0 1 4-2h5v14h-5a4 4 0 0 0-4 2 4 4 0 0 0-4-2H3z"/></symbol>
+    <symbol id="copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol>
+  </svg>
 
-<div class="title">FinanceBench RAG</div>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="FinanceBench_RAG home"><svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true"><path d="M2 25V13h6v12zm9 0V3h6v22zm9 0V8h6v17z"/></svg><span class="brand-wordmark">FinanceBench<span class="brand-suffix">_RAG</span></span></a>
+    <nav aria-label="Project navigation">
+      <details class="about">
+        <summary>About</summary>
+        <div class="about-panel">
+          <h2>About the project</h2>
+          <p>A financial-document retrieval-augmented generation (RAG) project built by Aquib Ahmad. It searches <strong>84 financial documents (~12,000 pages, 10M+ tokens)</strong>: 10-Ks, 10-Qs, 8-Ks, and earnings releases.</p>
+          <p>Questions are decomposed into focused searches. BM25 and semantic search retrieve pages by searching their summaries. An evidence judge assesses the original pages for their usefulness in answering the question. Answers are then generated from the selected original pages, with citations. LangSmith traces the pipeline.</p>
+          <p>The system achieved <strong>87.3% answer accuracy (131/150)</strong> on the <strong>150 public FinanceBench questions</strong>.</p>
+          <p>The demo searches only the available filings. Answers can be incomplete or incorrect; check the cited sources.</p>
+          <div class="about-links"><a href="warning/warning_page.html" target="_blank" rel="noopener">Available filings <svg class="icon"><use href="#external"/></svg></a><a href="https://github.com/aquib8112/FinanceBench_RAG#results-and-limitations" target="_blank" rel="noopener">Evaluation results <svg class="icon"><use href="#external"/></svg></a><a href="https://arxiv.org/abs/2311.11944" target="_blank" rel="noopener">Benchmark paper <svg class="icon"><use href="#external"/></svg></a></div>
+        </div>
+      </details>
+      <a href="https://linkedin.com/in/ahmadaquib8871" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/aquib8112/FinanceBench_RAG" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
 
-<div class="icons">
-    <a href="https://linkedin.com/in/ahmadaquib8871" target="_blank" title="Owner's Linkedin">
-        <img src="resource/icons8-linkedin-100.png" class="icon">
-    </a>
-
-    <a href="https://github.com/aquib8112/FinanceBench_RAG" target="_blank" title="Owner's Github">
-        <img src="resource/icons8-github-logo-100_3.png" class="icon">
-    </a>
-
-    <a href="https://arxiv.org/pdf/2311.11944" target="_blank" title="Research Paper">
-        <img src="resource/icons8-clipboard-100_3.png" class="icon">
-    </a>
-
-    <a href="warning/warning_page.html" target="_blank" title="List of documents">
-        <img src="resource/icons8-caution-100.png" class="icon">
-    </a>
-</div>
-
-
-<div id="welcome-block" class="welcome-block">
-    <h2>⚠️ Please read this before using ⚠️</h2>
-
-    <p>This AI system answers questions using a fixed set of <strong>84 FinanceBench source documents</strong>, covering 
-        <strong>10-K filings, 10-Q filings, 8-K reports, and earnings-call transcripts</strong>. In internal evaluation on 150 benchmark questions, the system produced correct answers in 
-        <strong>approximately 76% of cases</strong>. You may review the <a href="warning/warning_page.html" target="_blank">full document list</a> before asking questions.</p>
-
-    <p>Responses are generated automatically and may occasionally be incomplete or incorrect. 
-        Please verify critical information against the original filings.</p>
-
-    <p>This project is a <strong>scaled-down prototype</strong> of a retrieval-and-reasoning pipeline that can be expanded to handle 
-        <strong>much larger financial document collections</strong> with minimal architectural changes.</p>
-
-    <p>This system is under active development, and reliability is continuously being improved.</p>
-    
-    <p>Thank you for trying it out.</p>
-</div>
-
-
-<div class="chat-wrapper">
-
-    <div class="chat-container">
-        <div class="chat-column"></div>
+  <main id="research" class="research-section" aria-label="Financial research assistant">
+    <div class="intro">
+      <p class="eyebrow">FINANCIAL RESEARCH, OPEN TO EXPLORATION</p>
+      <h1>Ask about the numbers.<br><em>See the evidence.</em></h1>
+      <p class="intro-description">Ask questions about company filings and inspect the sources behind each answer.</p>
+      <div class="project-stats" aria-label="Project scope and saved evaluation">
+        <span>84 documents</span><span>~12,000 pages</span><a href="https://github.com/aquib8112/FinanceBench_RAG#results-and-limitations" target="_blank" rel="noopener" aria-label="131 of 150 answers correct in the saved evaluation on public FinanceBench questions">87.3% on FinanceBench</a>
+      </div>
     </div>
-
-    <div class="input-container">
-        <textarea placeholder="Ask a financial question…"></textarea>
-        <button class="send-btn">
-            <img src="resource/icons8-arrow-up-100_1.png" alt="Send" />
-        </button>
+    <div class="chat-container" tabindex="0" role="region" aria-label="Research conversation" hidden><div class="chat-column" role="log" aria-live="polite" aria-relevant="additions"></div></div>
+    <form id="question-form">
+      <label class="sr-only" for="userInput">Financial research question</label>
+      <textarea id="userInput" rows="2" maxlength="8000" placeholder="How did Adobe's revenue change in 2022?" aria-describedby="input-hint"></textarea>
+      <div class="composer-footer"><span id="input-hint">Include a company and year.</span><button class="send-btn" type="submit" disabled><span>Ask question</span><svg class="icon"><use href="#arrow"/></svg></button></div>
+    </form>
+    <div class="starter-questions">
+      <p class="eyebrow">TRY A QUESTION</p>
+      <div class="question-grid">
+        <button type="button" data-question="How did Adobe's revenue change from 2021 to 2022?"><span>Adobe's revenue growth<br><small>2021 &rarr; 2022</small></span><svg class="icon"><use href="#arrow"/></svg></button>
+        <button type="button" data-question="How much cash did Microsoft generate from operating activities in fiscal year 2023?"><span>Microsoft's cash flow<br><small>2023</small></span><svg class="icon"><use href="#arrow"/></svg></button>
+        <button type="button" data-question="What were 3M's capital expenditures in 2018?"><span>3M's capital spending<br><small>2018</small></span><svg class="icon"><use href="#arrow"/></svg></button>
+      </div>
     </div>
+    <p class="research-note">Research prototype. Answers may be incorrect; verify the sources.</p>
+    <p id="ui-status" class="sr-only" role="status"></p>
+  </main>
 
-</div>
-
-<script src="script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <footer><a href="https://linkedin.com/in/ahmadaquib8871" target="_blank" rel="noopener">Built by Aquib <svg class="icon"><use href="#external"/></svg></a></footer>
 </body>
 </html>
